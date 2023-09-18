@@ -6,19 +6,48 @@ const k = kaboom({
 })
 
 k.loadSprite("bean", "sprites/bean.png")
+k.loadSprite("grass", "sprites/grass.png")
+k.loadSprite("heart", "sprites/heart.png")
+k.loadBitmapFont("sink", "fonts/sink_6x8.png", 6, 8)
 
-const m = k.add([
-  k.rect(1, 1),
-  k.opacity(0),
-  k.pos(k.mousePos()),
-  k.area()
+let hIcon = k.add([
+  k.pos(32, 32),
+  k.sprite("heart"),
+  k.anchor("center"),
+  k.z(10)
 ])
+
+let hText = k.add([
+  k.pos(64, 32),
+  k.text("100", {
+    font: "sink",
+    size: 32
+  })
+])
+
+let hp = 100
 
 const player = k.add([
   k.pos(120, 80),
   k.sprite("bean"),
   k.area(),
-  k.follow(m)
+  k.anchor("center")
 ])
 
-k.onClick(() => m.moveTo(k.mousePos()))
+const SPEED = 250
+
+k.onKeyDown("a", () => {
+	player.move(-SPEED, 0)
+})
+
+k.onKeyDown("d", () => {
+	player.move(SPEED, 0)
+})
+
+k.onKeyDown("w", () => {
+	player.move(0, -SPEED)
+})
+
+k.onKeyDown("s", () => {
+	player.move(0, SPEED)
+})
