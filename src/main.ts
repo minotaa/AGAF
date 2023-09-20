@@ -1,4 +1,4 @@
-import kaboom, { Vec2 } from "kaboom"
+import kaboom, { Color } from "kaboom"
 
 const k = kaboom({
   height: 768,
@@ -10,6 +10,13 @@ k.loadSprite("bean", "sprites/bean.png")
 k.loadSprite("grass", "sprites/grass.png")
 k.loadSprite("heart", "sprites/heart.png")
 k.loadFont("sink", "fonts/sink.ttf")
+
+k.loadSprite("apple", "sprites/apple.png")
+k.loadSprite("coin", "sprites/coin.png")
+k.loadSprite("grape", "sprites/grape.png")
+k.loadSprite("pineapple", "sprites/pineapple.png")
+k.loadSprite("mushroom", "sprites/mushroom.png")
+k.loadSprite("watermelon", "sprites/watermelon.png")
 
 let hp = 100
 
@@ -23,18 +30,40 @@ const player = k.add([
 
 // 0x0 - 2176x1536
 
-k.onClick("resource", () => {
-  k.shake(20)
-})
+k.onClick("resource", (resource) => {
+  if (player.worldPos().dist(resource.worldPos()) < (64 * 4.5)) {
+    k.shake(1.5)
+  } else {
+    k.debug.log("Too far away.")
+  }
+}) 
+
+let ui = k.add([
+  k.anchor("center"),
+  k.z(10),
+  k.fixed()
+])
+
+ui.add([
+  k.sprite("heart"),
+  k.pos(32, 32)
+])
+
+let hText = ui.add([
+  k.text("100", {
+    font: "sink",
+    size: 24
+  }),
+  k.pos(80, 38),
+  k.outline(2, k.Color.BLACK)
+])
 
 k.onLoading(async () => {
   let objects = k.randi(5, 15)
+  let sprites = ["apple", "grape", "mushroom", "pineapple", "watermelon"]
   for (let i = 0; i < objects; i++) {
     k.add([
-      k.sprite("grass", {
-        width: 64,
-        height: 64
-      }),
+      k.sprite(k.choose(sprites)),
       k.area(),
       k.body({ isStatic: true }),
       k.pos(k.randi(64, 2146), k.randi(64, 1509)),
