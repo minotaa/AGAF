@@ -14,12 +14,34 @@ k.loadFont("sink", "fonts/sink.ttf")
 let hp = 100
 
 const player = k.add([
-  k.pos(0, 0),
+  k.pos(1088, 768),
   k.sprite("bean"),
   k.area(),
   k.anchor("center"),
   k.body()
 ])
+
+// 0x0 - 2176x1536
+
+k.onClick("resource", () => {
+  k.shake(20)
+})
+
+k.onLoading(async () => {
+  let objects = k.randi(5, 15)
+  for (let i = 0; i < objects; i++) {
+    k.add([
+      k.sprite("grass", {
+        width: 64,
+        height: 64
+      }),
+      k.area(),
+      k.body({ isStatic: true }),
+      k.pos(k.randi(64, 2146), k.randi(64, 1509)),
+      "resource"
+    ])
+  }
+})
 
 const SPEED = 325
 
@@ -58,23 +80,31 @@ k.onUpdate(() => {
 
 k.addLevel(
   [
-    "====================================",
-    "====================================",
-    "==                                ==",
-    "==                                ==",
-    "==                                ==",
-    "==                                ==",
-    "==                                ==",
-    "==                                ==",
-    "==                                ==",
-    "==                                ==",
-    "==                                ==",
-    "==                                ==",
-    "==                                ==",
-    "==                                ==",
-    "==                                ==",
-    "====================================",
-    "===================================="
+    "===================================",
+    "=                                 =",
+    "=                                 =",
+    "=                                 =",
+    "=                                 =",
+    "=                                 =",
+    "=                                 =",
+    "=                                 =",
+    "=                                 =",
+    "=                                 =",
+    "=                                 =",
+    "=                                 =",
+    "=                                 =",
+    "=                                 =",
+    "=                                 =",
+    "=                                 =",
+    "=                                 =",
+    "=                                 =",
+    "=                                 =",
+    "=                                 =",
+    "=                                 =",
+    "=                                 =",
+    "=                                 =",
+    "=                                 =",
+    "==================================="
   ], {
   tileWidth: 64,
   tileHeight: 64,
@@ -82,9 +112,8 @@ k.addLevel(
     "=": () => [
       k.sprite("grass"),
       k.area(),
-      k.body({ isStatic: true, gravityScale: 0 }),
-      k.offscreen({ pause: true })
+      k.body({ isStatic: true, gravityScale: 0 })
     ]
   },
-  pos: k.vec2(0,0)
+  pos: k.vec2(0, 0)
 })
