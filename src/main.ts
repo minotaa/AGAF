@@ -59,7 +59,7 @@ let hText = ui.add([
 ])
 
 k.onLoading(async () => {
-  let objects = k.randi(5, 15)
+  let objects = k.randi(10, 20)
   let sprites = ["apple", "grape", "mushroom", "pineapple", "watermelon"]
   for (let i = 0; i < objects; i++) {
     k.add([
@@ -73,19 +73,6 @@ k.onLoading(async () => {
 })
 
 const SPEED = 325
-
-k.onLoading(async () => {
-  let objects = k.randi(20, 50)
-  for (let i = 0; i < objects; i++) {
-    k.add([
-      k.sprite("grass"),
-      k.pos(k.randi(-(75 * 64), 25 * 64), k.randi(-(75 * 64), 25 * 64)),
-      k.area(),
-      k.body({ isStatic: true, gravityScale: 0 }),
-      k.offscreen({ pause: true })
-    ])
-  }  
-})
 
 k.onKeyDown("a", () => {
 	player.move(-SPEED, 0)
