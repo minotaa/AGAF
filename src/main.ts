@@ -31,9 +31,12 @@ const player = k.add([
 
 // 0x0 - 2176x1536
 
-k.onClick("resource", (resource) => {
-  if (player.worldPos().dist(resource.worldPos()) < (64 * 4.5)) {
+k.onClick("fruit", (fruit) => {
+  if (player.worldPos().dist(fruit.worldPos()) < (64 * 4.5)) {
     k.shake(1.5)
+    fruits++
+    fText.text = `[black]${fruits}[/black]`
+    fruit.destroy()
   } else {
     k.debug.log("Too far away.")
   }
@@ -83,8 +86,35 @@ let fText = ui.add([
   k.outline(2, k.Color.BLACK)
 ])
 
+let overlayRect = ui.add([
+  k.rect(9000, 9000),
+  k.opacity(0.85),
+  k.pos(0,0 ),
+  k.color(k.Color.BLACK)
+])
+
+let overlayText = ui.add([
+  k.text("CLICK TO REFOCUS", {
+    size: 48,
+    font: "sink",
+    align: "center"
+  }),
+  k.pos(k.width() / 2, k.height() / 2),
+  k.anchor("center")
+])
+
+k.onUpdate(() => {
+  if (k.isFocused()) {
+    overlayRect.hidden = true
+    overlayText.hidden = true
+  } else {
+    overlayRect.hidden = false
+    overlayText.hidden = false
+  }
+})
+
 k.onLoad(async () => {
-  let objects = k.randi(10, 35)
+  let objects = k.randi(20, 45)
   let sprites = ["apple", "grape", "mushroom", "pineapple", "watermelon"]
   for (let i = 0; i < objects; i++) {
     k.add([
@@ -92,31 +122,55 @@ k.onLoad(async () => {
       k.area(),
       k.body({ isStatic: false, mass: 0.01 }),
       k.pos(k.randi(64, 2146), k.randi(64, 1509)),
-      "resource"
+      "fruit"
     ])
   }
 })
 
+
 const SPEED = 325
 
 k.onKeyDown("a", () => {
-	player.move(-SPEED, 0)
+  let speed = SPEED
+  if (k.isKeyDown("shift")) speed *= 2
+	player.move(-speed, 0)
 })
 
 k.onKeyDown("d", () => {
-	player.move(SPEED, 0)
+  let speed = SPEED
+  if (k.isKeyDown("shift")) speed *= 2
+	player.move(speed, 0)
 })
 
 k.onKeyDown("w", () => {
-	player.move(0, -SPEED)
+  let speed = SPEED
+  if (k.isKeyDown("shift")) speed *= 2
+	player.move(0, -speed)
 })
 
 k.onKeyDown("s", () => {
-	player.move(0, SPEED)
+  let speed = SPEED
+  if (k.isKeyDown("shift")) speed *= 2
+	player.move(0, speed)
 })
 
+let timer = 0
+let timer2 = 1 
+let loop = true
 k.onUpdate(() => {
+  if (!loop) return
   k.camPos(player.pos)
+  timer += k.dt()
+  if (timer < timer2) return
+  timer = 0
+  let sprites = ["apple", "grape", "mushroom", "pineapple", "watermelon"]
+  k.add([
+    k.sprite(k.choose(sprites)),
+    k.area(),
+    k.body({ isStatic: false, mass: 0.01 }),
+    k.pos(k.randi(64, 2146), k.randi(64, 1509)),
+    "fruit"
+  ])
 })
 
 k.addLevel(
