@@ -19,6 +19,7 @@ k.loadSprite("mushroom", "sprites/mushroom.png")
 k.loadSprite("watermelon", "sprites/watermelon.png")
 
 let hp = 100
+let fruits = 0
 
 const player = k.add([
   k.pos(1088, 768),
@@ -50,22 +51,46 @@ ui.add([
 ])
 
 let hText = ui.add([
-  k.text("100", {
+  k.text("[black]100[/black]", {
     font: "sink",
-    size: 24
+    size: 24,
+    styles: {
+      "black": {
+        color: k.BLACK
+      }
+    }
   }),
   k.pos(80, 38),
   k.outline(2, k.Color.BLACK)
 ])
 
-k.onLoading(async () => {
-  let objects = k.randi(10, 20)
+ui.add([
+  k.sprite("pineapple"),
+  k.pos(34, 70)
+])
+
+let fText = ui.add([
+  k.text("[black]0[/black]", {
+    font: "sink",
+    size: 24,
+    styles: {
+      "black": {
+        color: k.BLACK
+      }
+    }
+  }),
+  k.pos(80, 86),
+  k.outline(2, k.Color.BLACK)
+])
+
+k.onLoad(async () => {
+  let objects = k.randi(10, 35)
   let sprites = ["apple", "grape", "mushroom", "pineapple", "watermelon"]
   for (let i = 0; i < objects; i++) {
     k.add([
       k.sprite(k.choose(sprites)),
       k.area(),
-      k.body({ isStatic: true }),
+      k.body({ isStatic: false, mass: 0.01 }),
       k.pos(k.randi(64, 2146), k.randi(64, 1509)),
       "resource"
     ])
