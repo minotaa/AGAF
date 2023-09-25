@@ -1,2 +1,2 @@
-# Gunk
-Game about breaking rocks & building boats.
+# A Game About Fruit!
+A game about... something, I'm not sure what it is though...

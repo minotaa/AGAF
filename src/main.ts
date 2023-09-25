@@ -1,4 +1,4 @@
-import kaboom, { Color } from "kaboom"
+import kaboom, { Color, ColorComp, GameObj } from "kaboom"
 
 const k = kaboom({
   height: 768,
@@ -17,6 +17,7 @@ k.loadFont("sink", "fonts/sink.ttf")
 k.loadSound("eat", "sounds/yay.wav")
 k.loadSound("hurt", "sounds/owch!.wav")
 k.loadSound("lose", "sounds/uhoh.wav")
+k.loadSound("hmm", "sounds/somethinghappened.wav")
 
 k.loadSprite("apple", "sprites/apple.png")
 k.loadSprite("coin", "sprites/coin.png")
@@ -24,6 +25,12 @@ k.loadSprite("grape", "sprites/grape.png")
 k.loadSprite("pineapple", "sprites/pineapple.png")
 k.loadSprite("mushroom", "sprites/mushroom.png")
 k.loadSprite("watermelon", "sprites/watermelon.png")
+
+// love u kate
+k.loadSprite("kiwi", "sprites/kiw.png")
+k.loadSprite("orange", "sprites/ornge.png")
+k.loadSprite("strawberry", "sprites/strawb.png")
+k.loadSprite("banana", "sprites/banan.png")
 
 let gameOverTexts = [
   "YOU SUCK!",
@@ -331,7 +338,8 @@ k.scene("game", () => {
     k.area(),
     k.anchor("center"),
     k.body(),
-    "player"
+    "player",
+    k.scale()
   ])
   
   // 0x0 - 2176x1536
@@ -469,7 +477,7 @@ k.scene("game", () => {
   k.onLoad(async () => {
     overlayRect2.hidden = true
     let objects = k.randi(10, 25)
-    let sprites = ["apple", "grape", "mushroom", "pineapple", "watermelon"]
+    let sprites = ["apple", "grape", "mushroom", "pineapple", "watermelon", "strawberry", "orange", "banana", "kiwi"]
     for (let i = 0; i < objects; i++) {
       k.add([
         k.sprite(k.choose(sprites)),
@@ -482,10 +490,10 @@ k.scene("game", () => {
   })
   
   
-  const SPEED = 325
+  let SPEED = 325
   let stamina = 10
   
-  let markActivationTime = 25
+  let markActivationTime = 15
   
   
   k.onKeyDown("a", () => {
@@ -532,7 +540,7 @@ k.scene("game", () => {
   })
   
   k.loop(1, () => {
-    hp -= 2.5
+    hp -= Math.ceil((hp / 100 % 10) + 1.5)
     hText.text = `[black]${Math.floor(hp)}[/black]`
   })
 
@@ -551,6 +559,91 @@ k.scene("game", () => {
   k.loop(200, () => {
     fruitsToSpawn++
   })
+
+  k.onUpdate(() => {
+    let megas = k.get("mega")
+    if (megas.length > 0) {
+      const t = k.time() * 10
+      for (let i = 0; i < megas.length; i++) {
+        (megas[i]).color = k.rgb(
+          k.wave(0, 255, t),
+          k.wave(0, 255, t + 2),
+          k.wave(0, 255, t + 4),
+        )
+      }
+    }
+  })
+
+  let buffs = [
+    "fb",
+    "tfa",
+    "fs",
+    "sm",
+    "bm",
+    "fh",
+    "bs"
+  ]
+
+  k.onCollide("player", "mega", async (player, fruit) => {
+    fruits += 5
+    k.play("eat")
+    fText.text = `[black]${fruits}[/black]`
+    hp += 5
+    hText.text = `[black]${Math.floor(hp)}[/black]`
+    fruit.destroy()
+    let buff = k.choose(buffs)
+    if (buff == "fb") {
+      let sprites = ["apple", "grape", "mushroom", "pineapple", "watermelon", "strawberry", "orange", "banana", "kiwi"]
+      for (let i = 0; i < k.randi(10, 25); i++) {
+        k.add([
+          k.sprite(k.choose(sprites)),
+          k.area(),
+          k.body({ isStatic: false, mass: 0.01 }),
+          k.pos(k.randi(64, 2146), k.randi(64, 1509)),
+          k.lifespan(span, { fade: 5.5 }),
+          "fruit"
+        ])
+      }
+    k.play("hmm")
+    } else if (buff == "tfa") {
+      t12 = 0.25
+      await k.wait(10)
+      t12 = 0.75
+    } else if (buff == "fs") {
+      stamina = 10
+    } else if (buff == "sm") {
+      mark.agentSpeed = 250
+      await k.wait(30)
+      mark.agentSpeed = 500
+    } else if (buff == "bm") {
+      player.scale = 1.5
+      SPEED *= 2
+      await k.wait(30)
+      player.scale = 1
+      SPEED /= 2
+    } else if (buff == "fh") {
+      hp += 100
+    } else if (buff == "bs") {
+      let temp = stamina
+      stamina += 999999
+      await k.wait(20)
+      stamina = temp
+    }
+  })
+
+  k.loop(30, () => {
+    let sprites = ["apple", "grape", "mushroom", "pineapple", "watermelon", "strawberry", "orange", "banana", "kiwi"]
+    k.add([
+      "mega",
+      k.sprite(k.choose(sprites)),
+      k.color(),
+      k.lifespan(15.5, { fade: 10.5 }),
+      k.scale(1.2),
+      k.area(),
+      k.body({ isStatic: false, mass: 0.01 }),
+      k.pos(k.randi(64, 2146), k.randi(64, 1509)),
+    ])
+  })
   
   k.onUpdate(() => {
     if (!loop) return
@@ -562,6 +655,10 @@ k.scene("game", () => {
     } else {
       if (stamina < 10) stamina += 0.1
     }
+  })
+
+  k.onKeyPress("escape", () => {
+    k.go("menu")
   })
   
   k.onUpdate(() => {
@@ -581,7 +678,7 @@ k.scene("game", () => {
     if (timer > markActivationTime) {
       t12 = 0.75
     }
-    let sprites = ["apple", "grape", "mushroom", "pineapple", "watermelon"]
+    let sprites = ["apple", "grape", "mushroom", "pineapple", "watermelon", "strawberry", "orange", "banana", "kiwi"]
     for (let i = 0; i < fruitsToSpawn; i++) {
       k.add([
         k.sprite(k.choose(sprites)),
@@ -595,4 +692,104 @@ k.scene("game", () => {
   })
 })
 
-k.go("game")
+k.scene("menu", () => {
+  k.add([
+    k.text("[black]A GAME ABOUT FRUIT![/black]", {
+      size: 48,
+      font: "sink",
+      align: "center",
+      width: 450,
+      styles: {
+        "black": {
+          color: k.BLACK
+        }
+      }
+    }),
+    k.anchor("center"),
+    k.pos(k.width() / 2, k.height() / 2 - 150)
+  ])
+  k.add([
+    k.text("[black]Juan Pichardo (c) 2023[/black]", {
+      size: 18,
+      font: "sink",
+      align: "center",
+      width: 450,
+      styles: {
+        "black": {
+          color: k.BLACK
+        }
+      }
+    }),
+    k.anchor("center"),
+    k.pos(k.width() / 2, k.height() / 2 + 285)
+  ])
+  if (k.getData('highScore') != null) {
+    k.add([
+      k.text(`[black]High Score: ${k.getData('highScore')}[/black]`, {
+        size: 18,
+        font: "sink",
+        align: "center",
+        width: 450,
+        styles: {
+          "black": {
+            color: k.BLACK
+          }
+        }
+      }),
+      k.anchor("center"),
+      k.pos(k.width() / 2, k.height() / 2 + 315)
+    ])
+  }
+  k.add([
+    k.sprite(k.choose(["apple", "grape", "mushroom", "pineapple", "watermelon", "strawberry", "orange", "banana", "kiwi"])),
+    k.pos(k.width() / 2 - 300, k.height() / 2 - 150),
+    k.anchor("center"),
+    k.scale(1.5)
+  ])
+  k.add([
+    k.sprite(k.choose(["apple", "grape", "mushroom", "pineapple", "watermelon", "strawberry", "orange", "banana", "kiwi"])),
+    k.pos(k.width() / 2 + 300, k.height() / 2 - 150),
+    k.anchor("center"),
+    k.scale(1.5)
+  ])
+  let play = k.add([
+    k.text("PLAY!", {
+      size: 60,
+      font: "sink",
+      align: "center",
+      width: 450,
+      styles: {
+        "black": {
+          color: k.BLACK
+        }
+      }
+    }),
+    k.anchor("center"),
+    k.pos(k.width() / 2, k.height() / 2 + 50),
+    k.color(k.rgb(0, 0, 0)),
+    "button",
+    k.area(),
+    k.scale()
+  ])
+
+  play.onClick(() => {
+    k.go("game")
+  })
+
+  k.onHoverUpdate("button", (button) => {
+    let t = k.time() * 10
+    button.color = k.rgb(
+      k.wave(0, 255, t),
+      k.wave(0, 255, t + 2),
+      k.wave(0, 255, t + 4),
+    )
+    button.scale = k.vec2(1.2)
+  })
+
+  k.onHoverEnd("button", (button) => {
+    button.color = k.rgb(0, 0, 0)
+    button.scale = k.vec2(1.0)
+  })
+})
+
+k.go("menu")
